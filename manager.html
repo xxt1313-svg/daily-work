@@ -496,6 +496,25 @@
                     ${renderShift(staff, 'pm', '🌆 下午')}
                 </div>
             `).join('');
+            
+            // 重新設定工作項目和備註的值
+            staffList.forEach(staff => {
+                ['am', 'pm'].forEach(shift => {
+                    const data = currentSchedule[staff]?.[shift];
+                    if (data) {
+                        // 設定工作下拉選單
+                        const workSelect = document.querySelector(`select[onchange*="updateWork('${staff}', '${shift}'"]`);
+                        if (workSelect && data.work) {
+                            workSelect.value = data.work;
+                        }
+                        // 設定備註
+                        const noteTextarea = document.querySelector(`textarea[onchange*="updateNote('${staff}', '${shift}'"]`);
+                        if (noteTextarea && data.note) {
+                            noteTextarea.value = data.note;
+                        }
+                    }
+                });
+            });
         }
 
         function renderShift(staff, shift, label) {
