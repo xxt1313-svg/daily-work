@@ -22,6 +22,7 @@
             color: white;
             padding: 1.5rem;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -29,8 +30,38 @@
             margin-bottom: 0.5rem;
         }
 
+        .date-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .date-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .date-btn:active {
+            transform: scale(0.95);
+        }
+
         .date-display {
             font-size: 1.25rem;
+            min-width: 300px;
+            text-align: center;
         }
 
         .container {
@@ -106,13 +137,6 @@
             font-size: 1.25rem;
             font-weight: 700;
             color: #1e293b;
-        }
-
-        .work-name-cn {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #475569;
-            margin-top: 0.125rem;
         }
 
         .work-name-vn {
@@ -242,8 +266,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>📅 今日工作排程</h1>
-        <div class="date-display" id="dateDisplay"></div>
+        <h1>📅 工作排程</h1>
+        <div class="date-selector">
+            <button class="date-btn" onclick="changeDate(-1)">◀ 前一天</button>
+            <div class="date-display" id="dateDisplay"></div>
+            <button class="date-btn" onclick="changeDate(1)">後一天 ▶</button>
+        </div>
     </div>
 
     <div class="container" id="scheduleContainer">
@@ -267,12 +295,7 @@
         let workItems = [];
         let products = [];
         let staffList = [];
-
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0];
-        
-        document.getElementById('dateDisplay').textContent = 
-            today.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        let currentDate = new Date();
 
         async function init() {
             try {
@@ -283,16 +306,32 @@
                 workItems = data.workItems;
                 products = data.products;
                 
-                console.log('工作項目:', workItems);
-                console.log('產品:', products);
-                
+                updateDateDisplay();
                 loadSchedule();
             } catch (error) {
                 showError('系統初始化失敗：' + error.message);
             }
         }
 
+        function changeDate(days) {
+            currentDate.setDate(currentDate.getDate() + days);
+            updateDateDisplay();
+            loadSchedule();
+        }
+
+        function updateDateDisplay() {
+            const dateStr = currentDate.toLocaleDateString('zh-TW', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long' 
+            });
+            document.getElementById('dateDisplay').textContent = dateStr;
+        }
+
         async function loadSchedule() {
+            const dateStr = currentDate.toISOString().split('T')[0];
+            
             showLoading();
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getSchedule&date=${dateStr}`);
@@ -302,7 +341,7 @@
                     renderSchedule(data.schedule);
                     updateLastUpdate();
                 } else {
-                    showEmpty('今日尚無排程資料');
+                    showEmpty('此日期尚無排程資料');
                 }
             } catch (error) {
                 showError('載入失敗：' + error.message);
@@ -362,24 +401,18 @@
         }
 
         function getWorkInfo(code) {
-            console.log('查詢工作代碼:', code);
-            console.log('可用的工作項目:', workItems);
-            
             if (!code) {
                 return {
                     html: '<div class="work-empty">休息</div>'
                 };
             }
             
-            // 確保 code 轉換為字串進行比對
             const codeStr = String(code);
             const work = workItems.find(w => String(w.code) === codeStr);
             
-            console.log('找到的工作:', work);
-            
             if (!work) {
                 return {
-                    html: `<div class="work-code">工作代碼: ${code}</div><div class="work-name-vn">（找不到工作資訊）</div>`
+                    html: `<div class="work-code">工作代碼: ${code}</div>`
                 };
             }
             
@@ -434,7 +467,8 @@
             document.getElementById('loading').style.display = 'none';
         }
 
-        setInterval(loadSchedule, 5 * 60 * 1000);
+        // 自動重新整理改為每30分鐘（因為可能看未來的排程，不需要太頻繁更新）
+        setInterval(loadSchedule, 30 * 60 * 1000);
 
         init();
     </script>
