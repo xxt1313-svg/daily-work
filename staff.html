@@ -3,7 +3,8 @@
 <head>
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>員工查看 - 排程系統</title>
+    <meta charset="UTF-8">
+    <title>我的工作排程</title>
     <style>
         * {
             margin: 0;
@@ -11,21 +12,9 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #10b981;
-            --bg: #f0fdf4;
-            --card: #ffffff;
-            --text: #1e293b;
-            --border: #d1fae5;
-            --am: #f59e0b;
-            --pm: #8b5cf6;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
-            background: var(--bg);
-            padding: 0;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", sans-serif;
+            background: #f0fdf4;
         }
 
         .header {
@@ -33,40 +22,14 @@
             color: white;
             padding: 1.25rem 1rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
         .header h1 {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
-        }
-
-        .staff-selector {
             display: flex;
+            align-items: center;
             gap: 0.5rem;
-            margin-top: 0.75rem;
-        }
-
-        .staff-selector select {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            background: white;
-            color: var(--text);
-        }
-
-        .btn-load {
-            padding: 0.75rem 1.25rem;
-            background: white;
-            color: var(--primary);
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 700;
-            cursor: pointer;
         }
 
         .container {
@@ -75,117 +38,157 @@
             padding: 1rem;
         }
 
-        .date-card {
+        .selector-card {
             background: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
+            padding: 1.25rem;
+            border-radius: 1rem;
             margin-bottom: 1rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .date-select {
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-select, .form-date {
             width: 100%;
             padding: 0.875rem;
-            border: 2px solid var(--border);
+            border: 2px solid #d1fae5;
             border-radius: 0.5rem;
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .schedule-card {
+            font-size: 1rem;
+            color: #1e293b;
             background: white;
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-left: 6px solid var(--primary);
         }
 
-        .my-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1rem;
+        .form-select:focus, .form-date:focus {
+            outline: none;
+            border-color: #10b981;
         }
 
-        .shift-block {
-            background: var(--bg);
-            border-radius: 0.75rem;
+        .btn-view {
+            width: 100%;
             padding: 1rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .btn-view:active {
+            transform: scale(0.98);
+        }
+
+        .staff-name-display {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .date-display {
+            font-size: 1.125rem;
+            color: #64748b;
             margin-bottom: 1rem;
         }
 
-        .shift-block:last-child {
+        .shift-section {
+            background: #f9fafb;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .shift-section:last-child {
             margin-bottom: 0;
         }
 
         .shift-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
 
-        .shift-icon {
-            font-size: 1.5rem;
-        }
-
-        .shift-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-        }
-
-        .shift-block.am .shift-title {
-            color: var(--am);
-        }
-
-        .shift-block.pm .shift-title {
-            color: var(--pm);
-        }
-
-        .info-row {
-            margin-bottom: 0.75rem;
-        }
-
-        .info-label {
-            font-size: 0.75rem;
-            color: #64748b;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .info-value {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text);
-            padding: 0.625rem;
-            background: white;
+        .shift-label {
+            padding: 0.5rem 1rem;
             border-radius: 0.5rem;
-            border: 2px solid var(--border);
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
         }
 
-        .info-value.empty {
+        .shift-label.am {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .shift-label.pm {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .work-display {
+            flex: 1;
+        }
+
+        .work-code {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .work-name-vn {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-style: italic;
+            margin-top: 0.125rem;
+        }
+
+        .work-empty {
+            font-size: 1.125rem;
             color: #94a3b8;
             font-style: italic;
-            font-weight: 400;
         }
 
         .product-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            margin-top: 0.75rem;
         }
 
         .product-tag {
-            background: var(--primary);
+            background: #10b981;
             color: white;
             padding: 0.5rem 0.875rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
             font-weight: 600;
+        }
+
+        .note {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            font-style: italic;
         }
 
         .empty-state {
@@ -195,17 +198,8 @@
         }
 
         .empty-icon {
-            font-size: 3rem;
+            font-size: 4rem;
             margin-bottom: 1rem;
-        }
-
-        .empty-text {
-            font-size: 1.125rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-hint {
-            font-size: 0.875rem;
         }
 
         .loading {
@@ -234,29 +228,6 @@
             to { transform: rotate(360deg); }
         }
 
-        .refresh-btn {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 3.5rem;
-            height: 3.5rem;
-            background: linear-gradient(135deg, var(--primary), #059669);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-        }
-
-        .refresh-btn:active {
-            transform: scale(0.9);
-        }
-
         .last-update {
             text-align: center;
             padding: 1rem;
@@ -268,51 +239,46 @@
 <body>
     <div class="header">
         <h1>👤 我的工作排程</h1>
-        <div class="staff-selector">
-            <select id="staffSelect">
-                <option value="">選擇您的姓名...</option>
-            </select>
-            <button class="btn-load" onclick="loadMySchedule()">查看</button>
-        </div>
     </div>
 
     <div class="container">
-        <div class="date-card">
-            <input type="date" id="scheduleDate" class="date-select" onchange="loadMySchedule()">
+        <div class="selector-card">
+            <div class="form-group">
+                <label class="form-label">選擇員工</label>
+                <select id="staffSelect" class="form-select">
+                    <option value="">請選擇...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">選擇日期</label>
+                <input type="date" id="dateSelect" class="form-date">
+            </div>
+
+            <button class="btn-view" onclick="viewSchedule()">查看排程</button>
         </div>
 
-        <div id="scheduleContent">
-            <div class="empty-state">
-                <div class="empty-icon">📋</div>
-                <div class="empty-text">請選擇您的姓名和日期</div>
-                <div class="empty-hint">即可查看您的工作排程</div>
-            </div>
-        </div>
+        <div id="scheduleContainer"></div>
 
         <div class="last-update" id="lastUpdate"></div>
     </div>
-
-    <button class="refresh-btn" onclick="loadMySchedule()" title="重新整理">
-        🔄
-    </button>
 
     <div id="loading" class="loading" style="display: none;">
         <div class="spinner"></div>
     </div>
 
     <script>
-        // Configuration - UPDATE THIS
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3jR0W8aCzfNzEcmzOLkzjbqA682ut_QEeU__UbjUgOdmYI4MAHhgrPIgX2D8bnxPF/exec';
         
         let workItems = [];
         let products = [];
         let staffList = [];
 
-        // Initialize
-        document.getElementById('scheduleDate').valueAsDate = new Date();
+        // 設定預設日期為今天
+        const today = new Date();
+        document.getElementById('dateSelect').valueAsDate = today;
 
         async function init() {
-            showLoading();
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getInitData`);
                 const data = await response.json();
@@ -321,54 +287,53 @@
                 workItems = data.workItems;
                 products = data.products;
                 
-                renderStaffSelector();
-                
-                // Load saved staff preference
+                // 填充員工下拉選單
+                const select = document.getElementById('staffSelect');
+                staffList.forEach(staff => {
+                    const option = document.createElement('option');
+                    option.value = staff;
+                    option.textContent = staff;
+                    select.appendChild(option);
+                });
+
+                // 嘗試從 localStorage 讀取上次選擇的員工
                 const savedStaff = localStorage.getItem('selectedStaff');
-                if (savedStaff) {
-                    document.getElementById('staffSelect').value = savedStaff;
-                    loadMySchedule();
+                if (savedStaff && staffList.includes(savedStaff)) {
+                    select.value = savedStaff;
+                    viewSchedule();
                 }
             } catch (error) {
-                showError('載入失敗：' + error.message);
-            } finally {
-                hideLoading();
+                showError('系統初始化失敗：' + error.message);
             }
         }
 
-        function renderStaffSelector() {
-            const select = document.getElementById('staffSelect');
-            select.innerHTML = '<option value="">選擇您的姓名...</option>' +
-                staffList.map(staff => `<option value="${staff}">${staff}</option>`).join('');
-        }
-
-        async function loadMySchedule() {
+        async function viewSchedule() {
             const staff = document.getElementById('staffSelect').value;
-            const date = document.getElementById('scheduleDate').value;
+            const dateInput = document.getElementById('dateSelect').value;
             
             if (!staff) {
-                showEmpty('請選擇您的姓名');
+                alert('請選擇員工');
                 return;
             }
             
-            if (!date) {
-                showEmpty('請選擇日期');
+            if (!dateInput) {
+                alert('請選擇日期');
                 return;
             }
 
-            // Save staff preference
+            // 儲存選擇的員工
             localStorage.setItem('selectedStaff', staff);
 
             showLoading();
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=getSchedule&date=${date}`);
+                const response = await fetch(`${SCRIPT_URL}?action=getSchedule&date=${dateInput}`);
                 const data = await response.json();
                 
                 if (data.schedule && data.schedule[staff]) {
-                    renderSchedule(staff, data.schedule[staff]);
+                    renderSchedule(staff, dateInput, data.schedule[staff]);
                     updateLastUpdate();
                 } else {
-                    showEmpty('此日期尚無排程資料');
+                    showEmpty(staff, dateInput);
                 }
             } catch (error) {
                 showError('載入失敗：' + error.message);
@@ -377,63 +342,76 @@
             }
         }
 
-        function renderSchedule(staffName, schedule) {
-            const content = document.getElementById('scheduleContent');
+        function renderSchedule(staff, date, staffData) {
+            const container = document.getElementById('scheduleContainer');
             
-            content.innerHTML = `
-                <div class="schedule-card">
-                    <div class="my-name">${staffName}</div>
-                    ${renderShift('am', '🌅', '上午', schedule.am)}
-                    ${renderShift('pm', '🌆', '下午', schedule.pm)}
+            const dateObj = new Date(date + 'T00:00:00');
+            const dateStr = dateObj.toLocaleDateString('zh-TW', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            container.innerHTML = `
+                <div class="selector-card">
+                    <div class="staff-name-display">${staff}</div>
+                    <div class="date-display">${dateStr}</div>
+                    
+                    ${renderShift('am', '上午', staffData.am)}
+                    ${renderShift('pm', '下午', staffData.pm)}
                 </div>
             `;
         }
 
-        function renderShift(type, icon, label, data) {
-            const workName = getWorkName(data.work);
+        function renderShift(type, label, data) {
+            const workInfo = getWorkInfo(data.work);
             const productList = getProductList(data.products || []);
             
             return `
-                <div class="shift-block ${type}">
+                <div class="shift-section">
                     <div class="shift-header">
-                        <div class="shift-icon">${icon}</div>
-                        <div class="shift-title">${label}</div>
-                    </div>
-                    
-                    <div class="info-row">
-                        <div class="info-label">工作項目</div>
-                        <div class="info-value ${data.work ? '' : 'empty'}">
-                            ${workName || '尚未安排'}
+                        <div class="shift-label ${type}">${label}</div>
+                        <div class="work-display">
+                            ${workInfo.html}
                         </div>
                     </div>
-                    
-                    <div class="info-row">
-                        <div class="info-label">產品項目</div>
-                        ${productList.length > 0 ? `
-                            <div class="product-tags">
-                                ${productList.map(p => `
-                                    <div class="product-tag">${p.code} - ${p.name}</div>
-                                `).join('')}
-                            </div>
-                        ` : `
-                            <div class="info-value empty">尚未安排</div>
-                        `}
-                    </div>
-                    
+                    ${productList.length > 0 ? `
+                        <div class="product-tags">
+                            ${productList.map(p => `
+                                <div class="product-tag">${p.code} - ${p.name}</div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                     ${data.note ? `
-                        <div class="info-row">
-                            <div class="info-label">備註</div>
-                            <div class="info-value">${data.note}</div>
-                        </div>
+                        <div class="note">📝 ${data.note}</div>
                     ` : ''}
                 </div>
             `;
         }
 
-        function getWorkName(code) {
-            if (!code) return null;
-            const work = workItems.find(w => w.code === code);
-            return work ? `${work.code} - ${work.name_cn} (${work.name_vn})` : code;
+        function getWorkInfo(code) {
+            if (!code) {
+                return {
+                    html: '<div class="work-empty">休息</div>'
+                };
+            }
+            
+            const codeStr = String(code);
+            const work = workItems.find(w => String(w.code) === codeStr);
+            
+            if (!work) {
+                return {
+                    html: `<div class="work-code">工作代碼: ${code}</div>`
+                };
+            }
+            
+            return {
+                html: `
+                    <div class="work-code">${work.code} - ${work.name_cn}</div>
+                    <div class="work-name-vn">${work.name_vn}</div>
+                `
+            };
         }
 
         function getProductList(codes) {
@@ -446,23 +424,35 @@
             });
         }
 
-        function showEmpty(message) {
-            const content = document.getElementById('scheduleContent');
-            content.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📋</div>
-                    <div class="empty-text">${message}</div>
+        function showEmpty(staff, date) {
+            const container = document.getElementById('scheduleContainer');
+            const dateObj = new Date(date + 'T00:00:00');
+            const dateStr = dateObj.toLocaleDateString('zh-TW', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            });
+            
+            container.innerHTML = `
+                <div class="selector-card">
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div style="font-size: 1.125rem; margin-bottom: 0.5rem;">${staff}</div>
+                        <div style="font-size: 1rem; color: #94a3b8;">${dateStr}</div>
+                        <div style="font-size: 1rem; margin-top: 0.5rem;">尚無排程資料</div>
+                    </div>
                 </div>
             `;
         }
 
         function showError(message) {
-            const content = document.getElementById('scheduleContent');
-            content.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">⚠️</div>
-                    <div class="empty-text">${message}</div>
-                    <div class="empty-hint">請稍後再試</div>
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = `
+                <div class="selector-card">
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <div style="font-size: 1.125rem; color: #ef4444;">${message}</div>
+                    </div>
                 </div>
             `;
         }
@@ -481,10 +471,6 @@
             document.getElementById('loading').style.display = 'none';
         }
 
-        // Auto refresh every 5 minutes
-        setInterval(loadMySchedule, 5 * 60 * 1000);
-
-        // Initialize
         init();
     </script>
 </body>
