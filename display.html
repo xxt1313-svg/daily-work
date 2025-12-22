@@ -362,17 +362,24 @@
         }
 
         function getWorkInfo(code) {
+            console.log('查詢工作代碼:', code);
+            console.log('可用的工作項目:', workItems);
+            
             if (!code) {
                 return {
                     html: '<div class="work-empty">休息</div>'
                 };
             }
             
-            const work = workItems.find(w => w.code === code);
+            // 確保 code 轉換為字串進行比對
+            const codeStr = String(code);
+            const work = workItems.find(w => String(w.code) === codeStr);
+            
+            console.log('找到的工作:', work);
             
             if (!work) {
                 return {
-                    html: `<div class="work-code">工作代碼: ${code}</div>`
+                    html: `<div class="work-code">工作代碼: ${code}</div><div class="work-name-vn">（找不到工作資訊）</div>`
                 };
             }
             
