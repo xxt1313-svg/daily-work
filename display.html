@@ -296,6 +296,7 @@
         let products = [];
         let staffList = [];
         let currentDate = new Date();
+        let loadedDateStr = ''; // 記錄載入時的日期字串
 
         async function init() {
             try {
@@ -331,6 +332,7 @@
 
         async function loadSchedule() {
             const dateStr = currentDate.toISOString().split('T')[0];
+            loadedDateStr = dateStr; // 記錄載入的日期
             
             showLoading();
             try {
@@ -348,6 +350,26 @@
             } finally {
                 hideLoading();
             }
+        }
+
+        // 檢查是否跨日
+        function checkDateChange() {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            
+            // 如果顯示的是「今天」的排程，但日期已經改變
+            if (loadedDateStr === getTodayDateStr() && todayStr !== loadedDateStr) {
+                console.log('偵測到日期變更，自動更新至今天');
+                currentDate = new Date(); // 重設為今天
+                updateDateDisplay();
+                loadSchedule();
+            }
+        }
+
+        // 取得今天的日期字串（用於比對）
+        function getTodayDateStr() {
+            const now = new Date();
+            return now.toISOString().split('T')[0];
         }
 
         function renderSchedule(schedule) {
@@ -467,8 +489,18 @@
             document.getElementById('loading').style.display = 'none';
         }
 
-        // 自動重新整理改為每30分鐘（因為可能看未來的排程，不需要太頻繁更新）
-        setInterval(loadSchedule, 30 * 60 * 1000);
+        // 每 30 分鐘自動重新整理（如果看的是今天）
+        setInterval(() => {
+            checkDateChange();
+            // 只有在看今天時才自動重新整理
+            const todayStr = getTodayDateStr();
+            if (loadedDateStr === todayStr) {
+                loadSchedule();
+            }
+        }, 30 * 60 * 1000);
+
+        // 每分鐘檢查一次是否跨日
+        setInterval(checkDateChange, 60 * 1000);
 
         init();
     </script>
