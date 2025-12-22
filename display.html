@@ -2,7 +2,7 @@
 <html>
 <head>
     <base target="_top">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>今日工作排程</title>
     <style>
@@ -15,15 +15,12 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", sans-serif;
             background: #f0fdf4;
-            padding: 0;
-            margin: 0;
         }
 
         .header {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            padding: 1.5rem 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1.5rem;
             text-align: center;
         }
 
@@ -34,11 +31,10 @@
 
         .date-display {
             font-size: 1.25rem;
-            opacity: 0.95;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 1.5rem;
         }
@@ -67,9 +63,6 @@
         }
 
         .shift-row {
-            display: grid;
-            grid-template-columns: 70px 1fr;
-            gap: 0.75rem;
             margin-bottom: 1rem;
             padding: 0.75rem;
             background: #f9fafb;
@@ -80,15 +73,21 @@
             margin-bottom: 0;
         }
 
-        .shift-label {
+        .shift-header {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .shift-label {
             font-size: 1rem;
             font-weight: 700;
             color: white;
             border-radius: 0.5rem;
-            padding: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            min-width: 70px;
+            text-align: center;
         }
 
         .shift-label.am {
@@ -99,31 +98,40 @@
             background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         }
 
-        .shift-content {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
+        .work-display {
+            flex: 1;
         }
 
-        .work-item {
-            font-size: 1.125rem;
+        .work-code {
+            font-size: 1.25rem;
             font-weight: 700;
             color: #1e293b;
-            padding: 0.5rem 0;
-            line-height: 1.4;
-            white-space: pre-line;
         }
 
-        .work-item.empty {
+        .work-name-cn {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 0.125rem;
+        }
+
+        .work-name-vn {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .work-empty {
+            font-size: 1.125rem;
             color: #94a3b8;
             font-style: italic;
-            font-weight: 400;
         }
 
         .product-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            margin-top: 0.5rem;
         }
 
         .product-tag {
@@ -143,17 +151,7 @@
             background: #fef3c7;
             border-radius: 0.375rem;
             border-left: 3px solid #f59e0b;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 1rem;
-            color: #64748b;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+            margin-top: 0.5rem;
         }
 
         .loading {
@@ -195,9 +193,6 @@
             font-size: 2rem;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             z-index: 100;
         }
 
@@ -210,6 +205,17 @@
             padding: 1rem;
             color: #64748b;
             font-size: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
         }
 
         @media (max-width: 1600px) {
@@ -225,20 +231,11 @@
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .staff-name {
-                font-size: 1.25rem;
-            }
-            
-            .work-item {
-                font-size: 1rem;
-            }
-            
             .staff-grid {
                 grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -252,15 +249,13 @@
     <div class="container" id="scheduleContainer">
         <div class="empty-state">
             <div class="empty-icon">⏳</div>
-            <div style="font-size: 1.25rem; margin-bottom: 0.5rem;">載入中...</div>
+            <div style="font-size: 1.25rem;">載入中...</div>
         </div>
     </div>
 
     <div class="last-update" id="lastUpdate"></div>
 
-    <button class="refresh-btn" onclick="loadSchedule()" title="重新整理">
-        🔄
-    </button>
+    <button class="refresh-btn" onclick="loadSchedule()" title="重新整理">🔄</button>
 
     <div id="loading" class="loading" style="display: none;">
         <div class="spinner"></div>
@@ -273,11 +268,9 @@
         let products = [];
         let staffList = [];
 
-        // Get today's date
         const today = new Date();
         const dateStr = today.toISOString().split('T')[0];
         
-        // Display date
         document.getElementById('dateDisplay').textContent = 
             today.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
@@ -289,6 +282,9 @@
                 staffList = data.staffList;
                 workItems = data.workItems;
                 products = data.products;
+                
+                console.log('工作項目:', workItems);
+                console.log('產品:', products);
                 
                 loadSchedule();
             } catch (error) {
@@ -340,36 +336,52 @@
         }
 
         function renderShift(type, label, data) {
-            const workName = getWorkName(data.work);
+            const workInfo = getWorkInfo(data.work);
             const productList = getProductList(data.products || []);
             
             return `
                 <div class="shift-row">
-                    <div class="shift-label ${type}">${label}</div>
-                    <div class="shift-content">
-                        <div class="work-item ${data.work ? '' : 'empty'}">
-                            ${workName || '休息'}
+                    <div class="shift-header">
+                        <div class="shift-label ${type}">${label}</div>
+                        <div class="work-display">
+                            ${workInfo.html}
                         </div>
-                        ${productList.length > 0 ? `
-                            <div class="product-tags">
-                                ${productList.map(p => `
-                                    <div class="product-tag">${p.code} - ${p.name}</div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                        ${data.note ? `
-                            <div class="note">📝 ${data.note}</div>
-                        ` : ''}
                     </div>
+                    ${productList.length > 0 ? `
+                        <div class="product-tags">
+                            ${productList.map(p => `
+                                <div class="product-tag">${p.code} - ${p.name}</div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${data.note ? `
+                        <div class="note">📝 ${data.note}</div>
+                    ` : ''}
                 </div>
             `;
         }
 
-        function getWorkName(code) {
-            if (!code) return null;
+        function getWorkInfo(code) {
+            if (!code) {
+                return {
+                    html: '<div class="work-empty">休息</div>'
+                };
+            }
+            
             const work = workItems.find(w => w.code === code);
-            if (!work) return code;
-            return `${work.code} - ${work.name_cn}\n(${work.name_vn})`;
+            
+            if (!work) {
+                return {
+                    html: `<div class="work-code">工作代碼: ${code}</div>`
+                };
+            }
+            
+            return {
+                html: `
+                    <div class="work-code">${work.code} - ${work.name_cn}</div>
+                    <div class="work-name-vn">${work.name_vn}</div>
+                `
+            };
         }
 
         function getProductList(codes) {
@@ -383,8 +395,7 @@
         }
 
         function showEmpty(message) {
-            const container = document.getElementById('scheduleContainer');
-            container.innerHTML = `
+            document.getElementById('scheduleContainer').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📋</div>
                     <div style="font-size: 1.25rem;">${message}</div>
@@ -393,8 +404,7 @@
         }
 
         function showError(message) {
-            const container = document.getElementById('scheduleContainer');
-            container.innerHTML = `
+            document.getElementById('scheduleContainer').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">⚠️</div>
                     <div style="font-size: 1.25rem; color: #ef4444;">${message}</div>
@@ -417,10 +427,8 @@
             document.getElementById('loading').style.display = 'none';
         }
 
-        // Auto refresh every 5 minutes
         setInterval(loadSchedule, 5 * 60 * 1000);
 
-        // Initialize
         init();
     </script>
 </body>
