@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>員工查看 - 排程系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10b981;
+            --bg: #f0fdf4;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #d1fae5;
+            --am: #f59e0b;
+            --pm: #8b5cf6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background: var(--bg);
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1.25rem 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .staff-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .staff-selector select {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: white;
+            color: var(--text);
+        }
+
+        .btn-load {
+            padding: 0.75rem 1.25rem;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .date-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .date-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .schedule-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 6px solid var(--primary);
+        }
+
+        .my-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .shift-block {
+            background: var(--bg);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .shift-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .shift-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .shift-icon {
+            font-size: 1.5rem;
+        }
+
+        .shift-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .shift-block.am .shift-title {
+            color: var(--am);
+        }
+
+        .shift-block.pm .shift-title {
+            color: var(--pm);
+        }
+
+        .info-row {
+            margin-bottom: 0.75rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+            padding: 0.625rem;
+            background: white;
+            border-radius: 0.5rem;
+            border: 2px solid var(--border);
+        }
+
+        .info-value.empty {
+            color: #94a3b8;
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .product-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .product-tag {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-text {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-hint {
+            font-size: 0.875rem;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            background: linear-gradient(135deg, var(--primary), #059669);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.9);
+        }
+
+        .last-update {
+            text-align: center;
+            padding: 1rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👤 我的工作排程</h1>
+        <div class="staff-selector">
+            <select id="staffSelect">
+                <option value="">選擇您的姓名...</option>
+            </select>
+            <button class="btn-load" onclick="loadMySchedule()">查看</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="date-card">
+            <input type="date" id="scheduleDate" class="date-select" onchange="loadMySchedule()">
+        </div>
+
+        <div id="scheduleContent">
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-text">請選擇您的姓名和日期</div>
+                <div class="empty-hint">即可查看您的工作排程</div>
+            </div>
+        </div>
+
+        <div class="last-update" id="lastUpdate"></div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadMySchedule()" title="重新整理">
+        🔄
+    </button>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Configuration - UPDATE THIS
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3jR0W8aCzfNzEcmzOLkzjbqA682ut_QEeU__UbjUgOdmYI4MAHhgrPIgX2D8bnxPF/exec';
+        
+        let workItems = [];
+        let products = [];
+        let staffList = [];
+
+        // Initialize
+        document.getElementById('scheduleDate').valueAsDate = new Date();
+
+        async function init() {
+            showLoading();
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getInitData`);
+                const data = await response.json();
+                
+                staffList = data.staffList;
+                workItems = data.workItems;
+                products = data.products;
+                
+                renderStaffSelector();
+                
+                // Load saved staff preference
+                const savedStaff = localStorage.getItem('selectedStaff');
+                if (savedStaff) {
+                    document.getElementById('staffSelect').value = savedStaff;
+                    loadMySchedule();
+                }
+            } catch (error) {
+                showError('載入失敗：' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderStaffSelector() {
+            const select = document.getElementById('staffSelect');
+            select.innerHTML = '<option value="">選擇您的姓名...</option>' +
+                staffList.map(staff => `<option value="${staff}">${staff}</option>`).join('');
+        }
+
+        async function loadMySchedule() {
+            const staff = document.getElementById('staffSelect').value;
+            const date = document.getElementById('scheduleDate').value;
+            
+            if (!staff) {
+                showEmpty('請選擇您的姓名');
+                return;
+            }
+            
+            if (!date) {
+                showEmpty('請選擇日期');
+                return;
+            }
+
+            // Save staff preference
+            localStorage.setItem('selectedStaff', staff);
+
+            showLoading();
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getSchedule&date=${date}`);
+                const data = await response.json();
+                
+                if (data.schedule && data.schedule[staff]) {
+                    renderSchedule(staff, data.schedule[staff]);
+                    updateLastUpdate();
+                } else {
+                    showEmpty('此日期尚無排程資料');
+                }
+            } catch (error) {
+                showError('載入失敗：' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderSchedule(staffName, schedule) {
+            const content = document.getElementById('scheduleContent');
+            
+            content.innerHTML = `
+                <div class="schedule-card">
+                    <div class="my-name">${staffName}</div>
+                    ${renderShift('am', '🌅', '上午', schedule.am)}
+                    ${renderShift('pm', '🌆', '下午', schedule.pm)}
+                </div>
+            `;
+        }
+
+        function renderShift(type, icon, label, data) {
+            const workName = getWorkName(data.work);
+            const productList = getProductList(data.products || []);
+            
+            return `
+                <div class="shift-block ${type}">
+                    <div class="shift-header">
+                        <div class="shift-icon">${icon}</div>
+                        <div class="shift-title">${label}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">工作項目</div>
+                        <div class="info-value ${data.work ? '' : 'empty'}">
+                            ${workName || '尚未安排'}
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">產品項目</div>
+                        ${productList.length > 0 ? `
+                            <div class="product-tags">
+                                ${productList.map(p => `
+                                    <div class="product-tag">${p.code} - ${p.name}</div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div class="info-value empty">尚未安排</div>
+                        `}
+                    </div>
+                    
+                    ${data.note ? `
+                        <div class="info-row">
+                            <div class="info-label">備註</div>
+                            <div class="info-value">${data.note}</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function getWorkName(code) {
+            if (!code) return null;
+            const work = workItems.find(w => w.code === code);
+            return work ? `${work.code} - ${work.name_cn} (${work.name_vn})` : code;
+        }
+
+        function getProductList(codes) {
+            return codes.map(code => {
+                const product = products.find(p => p.code === code);
+                return {
+                    code: code,
+                    name: product ? product.name_cn : '未知產品'
+                };
+            });
+        }
+
+        function showEmpty(message) {
+            const content = document.getElementById('scheduleContent');
+            content.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-text">${message}</div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const content = document.getElementById('scheduleContent');
+            content.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <div class="empty-text">${message}</div>
+                    <div class="empty-hint">請稍後再試</div>
+                </div>
+            `;
+        }
+
+        function updateLastUpdate() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('lastUpdate').textContent = `最後更新：${timeStr}`;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Auto refresh every 5 minutes
+        setInterval(loadMySchedule, 5 * 60 * 1000);
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
